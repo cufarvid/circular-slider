@@ -7,4 +7,19 @@ export interface CircularSliderOptions {
   step?: number;
   color?: string;
   initialValue?: number;
+  size?: number;
 }
+
+export interface Coordinates {
+  x: number;
+  y: number;
+}
+
+export type SVGElementAttribute =
+  | 'd'
+  | 'fill'
+  | 'height'
+  | 'r'
+  | 'stroke'
+  | 'stroke-width'
+  | 'width';
