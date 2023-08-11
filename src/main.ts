@@ -7,4 +7,9 @@ if (!container) {
   throw new Error('Container element not found!');
 }
 
-new CircularSlider({ container, label: 'Test' });
+new CircularSlider({
+  container,
+  initialValue: 10,
+  color: 'red',
+  label: 'Test',
+});

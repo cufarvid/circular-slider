@@ -1,6 +1,5 @@
 import { Coordinates, SVGElementAttribute } from './types';
 
-// https://stackoverflow.com/questions/5736398/how-to-calculate-the-svg-path-for-an-arc-of-a-circle
 export function polarToCartesian(
   centerX: number,
   centerY: number,
@@ -15,14 +14,13 @@ export function polarToCartesian(
   };
 }
 
-// https://stackoverflow.com/questions/5736398/how-to-calculate-the-svg-path-for-an-arc-of-a-circle
 export function describeArc(
-  x: number,
-  y: number,
+  coordinates: Coordinates,
   radius: number,
   startAngle: number,
   endAngle: number,
 ): string {
+  const { x, y } = coordinates;
   const fullCircle = endAngle - startAngle === 360;
   const start = polarToCartesian(x, y, radius, endAngle - 0.01);
   const end = polarToCartesian(x, y, radius, startAngle);
@@ -50,4 +48,24 @@ export function createElementNS<K extends keyof SVGElementTagNameMap>(
   }
 
   return element;
+}
+
+export function radiansToDegrees(radians: number): number {
+  return (radians * 180) / Math.PI + 90;
+}
+
+export function getClientCoordinates(
+  event: MouseEvent | TouchEvent,
+): Coordinates {
+  if (event instanceof MouseEvent) {
+    return {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+
+  return {
+    x: event.touches[0].clientX,
+    y: event.touches[0].clientY,
+  };
 }

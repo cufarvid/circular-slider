@@ -22,4 +22,5 @@ export type SVGElementAttribute =
   | 'r'
   | 'stroke'
   | 'stroke-width'
-  | 'width';
+  | 'width'
+  | 'opacity';

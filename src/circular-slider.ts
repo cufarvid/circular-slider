@@ -1,5 +1,11 @@
 import { CircularSliderOptions, Coordinates } from './types';
-import { createElementNS, describeArc } from './util';
+import { TAU } from './constants';
+import {
+  createElementNS,
+  describeArc,
+  getClientCoordinates,
+  radiansToDegrees,
+} from './util';
 
 export class CircularSlider {
   private readonly _container: HTMLElement;
@@ -12,12 +18,14 @@ export class CircularSlider {
   public label: string;
 
   private _value: number;
-  private _angle: number = 0;
+  private _angle: number;
   private _dragging: boolean = false;
-  private _coordinates: Coordinates = { x: 0, y: 0 };
+  private _startAngle: number = -Math.PI / 2;
+  private readonly _coordinates: Coordinates = { x: 0, y: 0 };
 
   private _svg?: SVGSVGElement;
   private _handle?: SVGCircleElement;
+  private _arc?: SVGPathElement;
 
   constructor({
     container,
@@ -40,6 +48,7 @@ export class CircularSlider {
     this._coordinates = { x: this._size / 2, y: this._size / 2 };
 
     this._value = initialValue ? Math.min(initialValue, this._max) : this._min;
+    this._angle = this._getAngleForValue(this._value);
     this.label = label;
 
     this._init();
@@ -52,33 +61,128 @@ export class CircularSlider {
   }
 
   private _render(): void {
-    // Create the SVG container.
+    this._renderContainer();
+    this._renderBaseCircle();
+    this._renderArc();
+    this._renderHandle();
+  }
+
+  private _renderContainer() {
     this._svg = createElementNS('svg', {
       width: this._size,
       height: this._size,
     });
     this._container.appendChild(this._svg);
+  }
 
-    const { x, y } = this._coordinates;
-    const path = describeArc(x, y, this._radius, 0, 360);
-    // Create the outer circle.
-    const strip = createElementNS('path', {
-      d: path,
+  private _renderBaseCircle(): void {
+    const path = describeArc(this._coordinates, this._radius, 0, 360);
+
+    this._svg?.appendChild(
+      createElementNS('path', {
+        d: path,
+        fill: 'none',
+        stroke: 'gray',
+        'stroke-width': 20,
+      }),
+    );
+  }
+
+  private _renderArc(): void {
+    this._arc = createElementNS('path', {
+      d: this._getArcPath(),
       fill: 'none',
       stroke: this._color,
       'stroke-width': 20,
+      opacity: 0.8,
     });
-    this._svg.appendChild(strip);
 
-    // Create the handle.
+    this._svg?.appendChild(this._arc);
+  }
+
+  private _renderHandle(): void {
     this._handle = createElementNS('circle', {
       r: 10,
       fill: 'white',
     });
-    this._svg.appendChild(this._handle);
+
+    this._svg?.appendChild(this._handle);
   }
 
-  private _bindEvents() {}
+  private _getArcPath(): string {
+    return describeArc(
+      this._coordinates,
+      this._radius,
+      radiansToDegrees(this._startAngle),
+      radiansToDegrees(this._angle),
+    );
+  }
 
-  private _update() {}
+  private _bindEvents(): void {
+    const start = (event: MouseEvent | TouchEvent): void => {
+      this._dragging = true;
+      this._angle = this._recalculateAngle(event);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('touchmove', move);
+      document.addEventListener('mouseup', end);
+      document.addEventListener('touchend', end);
+    };
+
+    const move = (event: MouseEvent | TouchEvent): void => {
+      if (!this._dragging) return;
+      this._angle = this._recalculateAngle(event);
+      this._update();
+    };
+
+    const end = (): void => {
+      this._dragging = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('mouseup', end);
+      document.removeEventListener('touchend', end);
+    };
+
+    this._handle?.addEventListener('mousedown', start);
+    this._handle?.addEventListener('touchstart', start);
+  }
+
+  private _update(): void {
+    const { x, y } = this._angleToCoordinates(this._angle);
+
+    // Update handle position.
+    this._handle?.setAttribute('cx', `${x}`);
+    this._handle?.setAttribute('cy', `${y}`);
+
+    // Update arc path.
+    this._arc?.setAttribute('d', this._getArcPath());
+  }
+
+  private _recalculateAngle(event: MouseEvent | TouchEvent): number {
+    const { x: centerX, y: centerY } = this._coordinates;
+    const { x: startX, y: startY } = getClientCoordinates(event);
+
+    const angle = Math.atan2(startY - centerY, startX - centerX);
+
+    if (angle < this._startAngle) {
+      return angle + TAU;
+    }
+
+    return angle;
+  }
+
+  private _getAngleForValue(value: number): number {
+    const valueRange = this._max - this._min;
+    const valueFraction = (value - this._min) / valueRange;
+
+    return this._startAngle + TAU * valueFraction;
+  }
+
+  private _angleToCoordinates(angle: number): Coordinates {
+    const { x, y } = this._coordinates;
+
+    return {
+      x: x + this._radius * Math.cos(angle),
+      y: y + this._radius * Math.sin(angle),
+    };
+  }
 }
