@@ -1,4 +1,9 @@
-import { CircularSliderOptions, Coordinates } from './types';
+import {
+  ArcOptions,
+  CircularSliderOptions,
+  Coordinates,
+  HandleOptions,
+} from './types';
 import { TAU } from './constants';
 import {
   createElementNS,
@@ -16,6 +21,9 @@ export class CircularSlider {
   private readonly _color: string;
   private readonly _size: number;
   public label: string;
+
+  private readonly _arcOptions: ArcOptions;
+  private readonly _hadleOptions: HandleOptions;
 
   private _value: number;
   private _angle: number;
@@ -37,6 +45,8 @@ export class CircularSlider {
     initialValue,
     label,
     size,
+    arcOptions,
+    handleOptions,
   }: CircularSliderOptions) {
     this._container = container;
     this._radius = radius ?? 100;
@@ -51,6 +61,9 @@ export class CircularSlider {
     this._angle = this._getAngleForValue(this._value);
     this.label = label;
 
+    this._arcOptions = arcOptions ?? new ArcOptions();
+    this._hadleOptions = handleOptions ?? new HandleOptions();
+
     this._init();
   }
 
@@ -62,7 +75,7 @@ export class CircularSlider {
 
   private _render(): void {
     this._renderContainer();
-    this._renderBaseCircle();
+    this._renderDashedCircle();
     this._renderArc();
     this._renderHandle();
   }
@@ -75,7 +88,14 @@ export class CircularSlider {
     this._container.appendChild(this._svg);
   }
 
-  private _renderBaseCircle(): void {
+  private _renderDashedCircle(): void {
+    const { chunkSize, width } = this._arcOptions;
+    const circumference = TAU * this._radius;
+    const chunkCount = Math.floor(circumference / chunkSize);
+    const chunkAngle = TAU / chunkCount;
+
+    const gap = chunkAngle * this._radius - chunkSize / 2;
+    const dashArray = `${chunkSize} ${gap}`;
     const path = describeArc(this._coordinates, this._radius, 0, 360);
 
     this._svg?.appendChild(
@@ -83,27 +103,33 @@ export class CircularSlider {
         d: path,
         fill: 'none',
         stroke: 'gray',
-        'stroke-width': 20,
+        'stroke-width': width,
+        'stroke-dasharray': dashArray,
       }),
     );
   }
 
   private _renderArc(): void {
+    const { width, opacity } = this._arcOptions;
+
     this._arc = createElementNS('path', {
       d: this._getArcPath(),
       fill: 'none',
       stroke: this._color,
-      'stroke-width': 20,
-      opacity: 0.8,
+      'stroke-width': width,
+      opacity,
     });
 
     this._svg?.appendChild(this._arc);
   }
 
   private _renderHandle(): void {
+    const { width, fillColor, strokeColor } = this._hadleOptions;
+
     this._handle = createElementNS('circle', {
-      r: 10,
-      fill: 'white',
+      r: width / 1.5,
+      fill: fillColor,
+      stroke: strokeColor,
     });
 
     this._svg?.appendChild(this._handle);
