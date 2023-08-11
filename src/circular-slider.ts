@@ -145,19 +145,12 @@ export class CircularSlider {
   }
 
   private _bindEvents(): void {
-    const start = (event: MouseEvent | TouchEvent): void => {
+    const start = (): void => {
       this._dragging = true;
-      this._angle = this._recalculateAngle(event);
       document.addEventListener('mousemove', move);
       document.addEventListener('touchmove', move);
       document.addEventListener('mouseup', end);
       document.addEventListener('touchend', end);
-    };
-
-    const move = (event: MouseEvent | TouchEvent): void => {
-      if (!this._dragging) return;
-      this._angle = this._recalculateAngle(event);
-      this._update();
     };
 
     const end = (): void => {
@@ -168,8 +161,20 @@ export class CircularSlider {
       document.removeEventListener('touchend', end);
     };
 
+    const move = (event: MouseEvent | TouchEvent): void => {
+      if (!this._dragging) return;
+      this._recalculateAngle(event);
+      this._update();
+    };
+
+    const click = (event: MouseEvent | TouchEvent): void => {
+      this._recalculateAngle(event);
+      this._update();
+    };
+
     this._handle?.addEventListener('mousedown', start);
     this._handle?.addEventListener('touchstart', start);
+    this._svg?.addEventListener('click', click);
   }
 
   private _update(): void {
@@ -183,17 +188,13 @@ export class CircularSlider {
     this._arc?.setAttribute('d', this._getArcPath());
   }
 
-  private _recalculateAngle(event: MouseEvent | TouchEvent): number {
+  private _recalculateAngle(event: MouseEvent | TouchEvent): void {
     const { x: centerX, y: centerY } = this._coordinates;
     const { x: startX, y: startY } = getClientCoordinates(event);
 
     const angle = Math.atan2(startY - centerY, startX - centerX);
 
-    if (angle < this._startAngle) {
-      return angle + TAU;
-    }
-
-    return angle;
+    this._angle = angle < this._startAngle ? angle + TAU : angle;
   }
 
   private _getAngleForValue(value: number): number {
