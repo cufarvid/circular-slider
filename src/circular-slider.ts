@@ -217,8 +217,9 @@ export class CircularSlider {
   private _recalculateAngle(event: MouseEvent | TouchEvent): void {
     const { x: centerX, y: centerY } = this._coordinates;
     const { x: startX, y: startY } = getClientCoordinates(event);
+    const { left, top } = this._container.getBoundingClientRect();
 
-    const angle = Math.atan2(startY - centerY, startX - centerX);
+    const angle = Math.atan2(startY - centerY - top, startX - centerX - left);
 
     this._angle = angle < this._startAngle ? angle + TAU : angle;
   }
