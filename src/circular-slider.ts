@@ -13,7 +13,7 @@ import {
 } from './util';
 
 export class CircularSlider {
-  private readonly _container: HTMLElement;
+  private readonly _container: Element;
   private readonly _radius: number;
   private readonly _min: number;
   private readonly _max: number;
@@ -23,7 +23,7 @@ export class CircularSlider {
   public label: string;
 
   private readonly _arcOptions: ArcOptions;
-  private readonly _hadleOptions: HandleOptions;
+  private readonly _handleOptions: HandleOptions;
   private readonly _callback?: (value: number) => void;
 
   private _value: number;
@@ -50,6 +50,8 @@ export class CircularSlider {
     handleOptions,
     callback,
   }: CircularSliderOptions) {
+    if (!container) throw new Error('Container element not found!');
+
     this._container = container;
     this._radius = radius ?? 100;
     this._min = min ?? 0;
@@ -64,7 +66,7 @@ export class CircularSlider {
     this.label = label;
 
     this._arcOptions = arcOptions ?? new ArcOptions();
-    this._hadleOptions = handleOptions ?? new HandleOptions();
+    this._handleOptions = handleOptions ?? new HandleOptions();
     this._callback = callback;
 
     this._init();
@@ -127,7 +129,7 @@ export class CircularSlider {
   }
 
   private _renderHandle(): void {
-    const { width, fillColor, strokeColor } = this._hadleOptions;
+    const { width, fillColor, strokeColor } = this._handleOptions;
 
     this._handle = createElementNS('circle', {
       r: width / 1.5,

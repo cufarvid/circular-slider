@@ -1,5 +1,5 @@
 export interface CircularSliderOptions {
-  container: HTMLElement;
+  container?: Element;
   label: string;
   radius?: number;
   min?: number;
@@ -11,6 +11,12 @@ export interface CircularSliderOptions {
   arcOptions?: ArcOptions;
   handleOptions?: HandleOptions;
   callback?: (value: number) => void;
+}
+
+export interface StackCircularSliderOptions {
+  container: Element;
+  size?: number;
+  sliders: CircularSliderOptions[];
 }
 
 export interface Coordinates {
