@@ -10,6 +10,7 @@ export interface CircularSliderOptions {
   size?: number;
   arcOptions?: ArcOptions;
   handleOptions?: HandleOptions;
+  callback?: (value: number) => void;
 }
 
 export interface Coordinates {

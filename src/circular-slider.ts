@@ -24,6 +24,7 @@ export class CircularSlider {
 
   private readonly _arcOptions: ArcOptions;
   private readonly _hadleOptions: HandleOptions;
+  private readonly _callback?: (value: number) => void;
 
   private _value: number;
   private _angle: number;
@@ -47,6 +48,7 @@ export class CircularSlider {
     size,
     arcOptions,
     handleOptions,
+    callback,
   }: CircularSliderOptions) {
     this._container = container;
     this._radius = radius ?? 100;
@@ -63,6 +65,7 @@ export class CircularSlider {
 
     this._arcOptions = arcOptions ?? new ArcOptions();
     this._hadleOptions = handleOptions ?? new HandleOptions();
+    this._callback = callback;
 
     this._init();
   }
@@ -164,11 +167,13 @@ export class CircularSlider {
     const move = (event: MouseEvent | TouchEvent): void => {
       if (!this._dragging) return;
       this._recalculateAngle(event);
+      this._recalculateValue();
       this._update();
     };
 
     const click = (event: MouseEvent | TouchEvent): void => {
       this._recalculateAngle(event);
+      this._recalculateValue();
       this._update();
     };
 
@@ -186,6 +191,9 @@ export class CircularSlider {
 
     // Update arc path.
     this._arc?.setAttribute('d', this._getArcPath());
+
+    // Execute callback with new value.
+    this._callback?.(this._value);
   }
 
   private _recalculateAngle(event: MouseEvent | TouchEvent): void {
@@ -195,6 +203,15 @@ export class CircularSlider {
     const angle = Math.atan2(startY - centerY, startX - centerX);
 
     this._angle = angle < this._startAngle ? angle + TAU : angle;
+  }
+
+  private _recalculateValue(): void {
+    const angleDifference = this._angle - this._startAngle;
+    const anglePerStep = TAU / ((this._max - this._min) / this._step);
+    const numberOfSteps = Math.round(angleDifference / anglePerStep);
+    const newValue = this._min + numberOfSteps * this._step;
+
+    this._value = Math.max(this._min, Math.min(this._max, newValue));
   }
 
   private _getAngleForValue(value: number): number {

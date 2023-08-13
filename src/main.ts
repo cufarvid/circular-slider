@@ -12,4 +12,5 @@ new CircularSlider({
   initialValue: 10,
   color: 'red',
   label: 'Test',
+  callback: (v) => console.log(v),
 });
