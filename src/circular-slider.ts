@@ -1,5 +1,6 @@
 import {
   ArcOptions,
+  CircularSliderCallbackOptions,
   CircularSliderOptions,
   Coordinates,
   HandleOptions,
@@ -24,7 +25,8 @@ export class CircularSlider {
 
   private readonly _arcOptions: ArcOptions;
   private readonly _handleOptions: HandleOptions;
-  private readonly _callback?: (value: number) => void;
+  private readonly _callback?: (options: CircularSliderCallbackOptions) => void;
+  private readonly _id: string;
 
   private _value: number;
   private _angle: number;
@@ -69,6 +71,8 @@ export class CircularSlider {
     this._handleOptions = handleOptions ?? new HandleOptions();
     this._callback = callback;
 
+    this._id = Math.random().toString(36).substring(2, 9);
+
     this._init();
   }
 
@@ -83,6 +87,18 @@ export class CircularSlider {
     this._renderDashedCircle();
     this._renderArc();
     this._renderHandle();
+  }
+
+  public getId(): string {
+    return this._id;
+  }
+
+  public getValue(): number {
+    return this._value;
+  }
+
+  public getColor(): string {
+    return this._color;
   }
 
   private _renderContainer() {
@@ -195,7 +211,7 @@ export class CircularSlider {
     this._arc?.setAttribute('d', this._getArcPath());
 
     // Execute callback with new value.
-    this._callback?.(this._value);
+    this._callback?.({ id: this.getId(), value: this._value });
   }
 
   private _recalculateAngle(event: MouseEvent | TouchEvent): void {

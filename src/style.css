@@ -4,6 +4,30 @@
   background-color: #242424;
 }
 
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.legend__item-value {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.legend__item-color {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.5rem;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
