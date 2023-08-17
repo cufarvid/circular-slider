@@ -60,7 +60,7 @@ export class CircularSlider {
     this._max = max ?? 100;
     this._step = step ?? 1;
     this._color = color ?? '#000';
-    this._size = size ?? 500;
+    this._size = size ?? 350;
     this._coordinates = { x: this._size / 2, y: this._size / 2 };
 
     this._value = initialValue ? Math.min(initialValue, this._max) : this._min;

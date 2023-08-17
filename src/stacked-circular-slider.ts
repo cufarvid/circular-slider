@@ -23,17 +23,34 @@ export class StackedCircularSlider {
     sliders.forEach((slider) => {
       this.appendSlider(slider);
     });
+
+    this._renderInstructions();
   }
 
-  private _createContainer(parent: Element, size: number = 500): SVGSVGElement {
+  private _createContainer(parent: Element, size: number = 350): SVGSVGElement {
+    const container = document.createElement('div');
+    container.classList.add('container');
+
     const svg = createElementNS('svg', {
       width: size,
       height: size,
     });
 
-    parent.appendChild(svg);
+    container.appendChild(svg);
+    parent.appendChild(container);
 
     return svg;
+  }
+
+  private _renderInstructions(): void {
+    const instructions = document.createElement('div');
+    instructions.classList.add('instructions');
+    instructions.textContent = 'Adjust dial to enter expenses';
+
+    this._container
+      .getElementsByClassName('container')
+      .item(0)
+      ?.appendChild(instructions);
   }
 
   private _createLegendList(): HTMLUListElement {
