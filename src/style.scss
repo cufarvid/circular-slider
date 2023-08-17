@@ -2,6 +2,11 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+
+  @media (prefers-color-scheme: light) {
+    color: #213547;
+    background-color: #ffffff;
+  }
 }
 
 body {
@@ -21,28 +26,31 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 1rem;
 }
 
 .legend {
+  ul {
+    margin: 0;
+  }
+
   margin: 1rem;
-}
 
-.legend__item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
+  &__item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
 
-.legend__item-value {
-  font-size: 2rem;
-  font-weight: bold;
-}
+    &-value {
+      font-size: 2rem;
+      font-weight: bold;
+    }
 
-.legend__item-color {
-  width: 1rem;
-  height: 1rem;
-  margin: 0.5rem;
+    &-color {
+      width: 1rem;
+      height: 1rem;
+      margin: 0.5rem;
+    }
+  }
 }
 
 .instructions {
@@ -50,11 +58,4 @@ body {
   font-style: italic;
   text-transform: uppercase;
   margin: 0.5rem;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
 }

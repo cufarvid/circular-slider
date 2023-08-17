@@ -1,4 +1,4 @@
-import './style.css';
+import './style.scss';
 import { CircularSliderOptions } from './types.ts';
 import { StackedCircularSlider } from './stacked-circular-slider.ts';
 
