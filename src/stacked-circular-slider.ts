@@ -6,6 +6,9 @@ import {
 import { createElementNS } from './util.ts';
 import { CircularSlider } from './circular-slider.ts';
 
+/**
+ * Represents a stacked circular slider control.
+ */
 export class StackedCircularSlider {
   private readonly _container: Element;
   private readonly _svg: SVGSVGElement;
@@ -19,6 +22,11 @@ export class StackedCircularSlider {
     this._render(sliders);
   }
 
+  /**
+   * Renders the stacked circular sliders.
+   *
+   * @param {CircularSliderOptions[]} sliders The options for individual circular sliders.
+   */
   private _render(sliders: CircularSliderOptions[]): void {
     sliders.forEach((slider) => {
       this.appendSlider(slider);
@@ -27,6 +35,14 @@ export class StackedCircularSlider {
     this._renderInstructions();
   }
 
+  /**
+   * Creates an SVG container and appends it to the provided parent.
+   *
+   * @param {Element} parent The parent element to append the container to.
+   * @param {number} [size=350] The size of the SVG container.
+   *
+   * @returns {SVGSVGElement} The created SVG container.
+   */
   private _createContainer(parent: Element, size: number = 350): SVGSVGElement {
     const container = document.createElement('div');
     container.classList.add('container');
@@ -42,17 +58,22 @@ export class StackedCircularSlider {
     return svg;
   }
 
+  /**
+   * Renders instructions for the stacked circular sliders.
+   */
   private _renderInstructions(): void {
     const instructions = document.createElement('div');
     instructions.classList.add('instructions');
     instructions.textContent = 'Adjust dial to enter expenses';
 
-    this._container
-      .getElementsByClassName('container')
-      .item(0)
-      ?.appendChild(instructions);
+    this._container.appendChild(instructions);
   }
 
+  /**
+   * Creates a legend list and appends it to the container.
+   *
+   * @returns {HTMLUListElement} The created legend list.
+   */
   private _createLegendList(): HTMLUListElement {
     const legendContainer = document.createElement('div');
     legendContainer.classList.add('legend');
@@ -65,46 +86,52 @@ export class StackedCircularSlider {
     return legendList;
   }
 
-  private _appendSliderToLegend(slider: CircularSlider): void {
-    if (this._legendList) {
-      const item = document.createElement('li');
-      item.classList.add('legend__item');
-      item.id = slider.getId();
+  /**
+   * Updates the legend item with the provided id and value.
+   *
+   * @param {CircularSliderCallbackOptions} options - Options containing id and value of the legend item.
+   */
+  private _updateLegendItem(options: CircularSliderCallbackOptions): void {
+    const { id, value } = options;
+    const item = document.getElementById(id);
 
-      const itemValue = document.createElement('span');
-      itemValue.classList.add('legend__item-value');
-      itemValue.textContent = `$${slider.getValue()}`;
-      item.appendChild(itemValue);
+    if (!item) return;
 
-      const itemColor = document.createElement('span');
-      itemColor.classList.add('legend__item-color');
-      itemColor.style.backgroundColor = slider.getColor();
-      item.appendChild(itemColor);
-
-      const itemLabel = document.createElement('span');
-      itemLabel.classList.add('legend__item-label');
-      itemLabel.textContent = slider.label;
-      item.appendChild(itemLabel);
-
-      this._legendList.appendChild(item);
+    const valueElement = item.querySelector('.legend__item-value');
+    if (valueElement) {
+      valueElement.textContent = `$${value}`;
     }
   }
 
+  /**
+   * Appends a circular slider to the legend.
+   *
+   * @param {CircularSlider} slider The circular slider to append.
+   */
+  private _appendSliderToLegend(slider: CircularSlider): void {
+    const item = document.createElement('li');
+    item.classList.add('legend__item');
+    item.id = slider.getId();
+
+    item.innerHTML = `
+      <span class="legend__item-value">$${slider.getValue()}</span>
+      <span class="legend__item-color" style="background-color: ${slider.getColor()}"></span>
+      <span class="legend__item-label">${slider.label}</span>
+    `;
+
+    this._legendList.appendChild(item);
+  }
+
+  /**
+   * Appends a circular slider to the legend and initializes its update behavior.
+   *
+   * @param {CircularSliderOptions} options - The options for the circular slider.
+   */
   public appendSlider(options: CircularSliderOptions): void {
-    const updateLegendItem = (options: CircularSliderCallbackOptions) => {
-      const { id, value } = options;
-      const item = document.getElementById(id);
-      const valueElement = item?.firstChild;
-
-      if (valueElement) {
-        valueElement.textContent = `$${value}`;
-      }
-    };
-
     const slider = new CircularSlider({
       ...options,
       container: this._svg,
-      callback: updateLegendItem,
+      callback: this._updateLegendItem,
     });
 
     this._appendSliderToLegend(slider);
