@@ -2,9 +2,9 @@ export interface CircularSliderOptions {
   container?: Element;
   label: string;
   radius: number;
-  min: number;
-  max: number;
-  step: number;
+  min?: number;
+  max?: number;
+  step?: number;
   color: string;
   initialValue?: number;
   size?: number;
