@@ -89,6 +89,11 @@ export class CircularSlider {
     this._renderHandle();
   }
 
+  private _bindEvents(): void {
+    this._bindUIInteractions();
+    this._bindDocumentInteractions();
+  }
+
   public getId(): string {
     return this._id;
   }
@@ -165,39 +170,38 @@ export class CircularSlider {
     );
   }
 
-  private _bindEvents(): void {
-    const start = (): void => {
-      this._dragging = true;
-      document.addEventListener('mousemove', move);
-      document.addEventListener('touchmove', move);
-      document.addEventListener('mouseup', end);
-      document.addEventListener('touchend', end);
-    };
+  private _bindUIInteractions(): void {
+    this._handle?.addEventListener('mousedown', () => this._startDragging());
+    this._handle?.addEventListener('touchstart', () => this._startDragging());
+    this._svg?.addEventListener('click', (e) => this._onClick(e));
+  }
 
-    const end = (): void => {
-      this._dragging = false;
-      document.removeEventListener('mousemove', move);
-      document.removeEventListener('touchmove', move);
-      document.removeEventListener('mouseup', end);
-      document.removeEventListener('touchend', end);
-    };
+  private _bindDocumentInteractions(): void {
+    document.addEventListener('mousemove', (e) => this._onMove(e));
+    document.addEventListener('touchmove', (e) => this._onMove(e));
+    document.addEventListener('mouseup', () => this._endDragging());
+    document.addEventListener('touchend', () => this._endDragging());
+  }
 
-    const move = (event: MouseEvent | TouchEvent): void => {
-      if (!this._dragging) return;
-      this._recalculateAngle(event);
-      this._recalculateValue();
-      this._update();
-    };
+  private _startDragging(): void {
+    this._dragging = true;
+  }
 
-    const click = (event: MouseEvent | TouchEvent): void => {
-      this._recalculateAngle(event);
-      this._recalculateValue();
-      this._update();
-    };
+  private _endDragging(): void {
+    this._dragging = false;
+  }
 
-    this._handle?.addEventListener('mousedown', start);
-    this._handle?.addEventListener('touchstart', start);
-    this._svg?.addEventListener('click', click);
+  private _onClick(event: MouseEvent | TouchEvent): void {
+    this._recalculateAngle(event);
+    this._recalculateValue();
+    this._update();
+  }
+
+  private _onMove(event: MouseEvent | TouchEvent): void {
+    if (!this._dragging) return;
+    this._recalculateAngle(event);
+    this._recalculateValue();
+    this._update();
   }
 
   private _update(): void {
