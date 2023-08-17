@@ -10,7 +10,7 @@ export interface CircularSliderOptions {
   size?: number;
   arcOptions?: ArcOptions;
   handleOptions?: HandleOptions;
-  callback?: (options: CircularSliderCallbackOptions) => void;
+  onChange?: (options: CircularSliderCallbackOptions) => void;
 }
 
 export interface CircularSliderCallbackOptions {

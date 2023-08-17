@@ -28,7 +28,7 @@ export class CircularSlider {
 
   private readonly _arcOptions: ArcOptions;
   private readonly _handleOptions: HandleOptions;
-  private readonly _callback?: (options: CircularSliderCallbackOptions) => void;
+  private readonly _onChange?: (options: CircularSliderCallbackOptions) => void;
   private readonly _id: string;
 
   private _value: number;
@@ -53,7 +53,7 @@ export class CircularSlider {
     size,
     arcOptions,
     handleOptions,
-    callback,
+    onChange,
   }: CircularSliderOptions) {
     if (!container) throw new Error('Container element not found!');
 
@@ -72,7 +72,7 @@ export class CircularSlider {
 
     this._arcOptions = arcOptions ?? new ArcOptions();
     this._handleOptions = handleOptions ?? new HandleOptions();
-    this._callback = callback;
+    this._onChange = onChange;
 
     this._id = Math.random().toString(36).substring(2, 9);
 
@@ -284,7 +284,7 @@ export class CircularSlider {
     this._arc?.setAttribute('d', this._getArcPath());
 
     // Execute callback with new value.
-    this._callback?.({ id: this.getId(), value: this._value });
+    this._onChange?.({ id: this.getId(), value: this._value });
   }
 
   /**

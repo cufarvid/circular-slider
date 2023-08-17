@@ -131,7 +131,7 @@ export class StackedCircularSlider {
     const slider = new CircularSlider({
       ...options,
       container: this._svg,
-      callback: this._updateLegendItem,
+      onChange: this._updateLegendItem,
     });
 
     this._appendSliderToLegend(slider);
