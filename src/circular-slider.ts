@@ -13,6 +13,9 @@ import {
   radiansToDegrees,
 } from './util';
 
+/**
+ * Represents a circular slider control.
+ */
 export class CircularSlider {
   private readonly _container: Element;
   private readonly _radius: number;
@@ -55,11 +58,11 @@ export class CircularSlider {
     if (!container) throw new Error('Container element not found!');
 
     this._container = container;
-    this._radius = radius ?? 100;
+    this._radius = radius;
     this._min = min ?? 0;
     this._max = max ?? 100;
     this._step = step ?? 1;
-    this._color = color ?? '#000';
+    this._color = color;
     this._size = size ?? 350;
     this._coordinates = { x: this._size / 2, y: this._size / 2 };
 
@@ -76,12 +79,18 @@ export class CircularSlider {
     this._init();
   }
 
+  /**
+   * Initialize the slider: render UI, bind events, and update state.
+   */
   private _init(): void {
     this._render();
     this._bindEvents();
     this._update();
   }
 
+  /**
+   * Renders the slider's elements.
+   */
   private _render(): void {
     this._renderContainer();
     this._renderDashedCircle();
@@ -89,24 +98,45 @@ export class CircularSlider {
     this._renderHandle();
   }
 
+  /**
+   * Binds event listeners to relevant elements.
+   */
   private _bindEvents(): void {
     this._bindUIInteractions();
     this._bindDocumentInteractions();
   }
 
+  /**
+   * Retrieves the unique identifier of the circular slider instance.
+   *
+   * @returns {string} The unique identifier.
+   */
   public getId(): string {
     return this._id;
   }
 
+  /**
+   * Retrieves the current value of the circular slider.
+   *
+   * @returns {number} The current value.
+   */
   public getValue(): number {
     return this._value;
   }
 
+  /**
+   * Retrieves the color of the circular slider.
+   *
+   * @returns {string} The color.
+   */
   public getColor(): string {
     return this._color;
   }
 
-  private _renderContainer() {
+  /**
+   * Render the container SVG element.
+   */
+  private _renderContainer(): void {
     this._svg = createElementNS('svg', {
       width: this._size,
       height: this._size,
@@ -114,6 +144,9 @@ export class CircularSlider {
     this._container.appendChild(this._svg);
   }
 
+  /**
+   * Renders the dashed circle background.
+   */
   private _renderDashedCircle(): void {
     const { chunkSize, width } = this._arcOptions;
     const circumference = TAU * this._radius;
@@ -135,6 +168,9 @@ export class CircularSlider {
     );
   }
 
+  /**
+   * Renders the colored arc representing the selected value.
+   */
   private _renderArc(): void {
     const { width, opacity } = this._arcOptions;
 
@@ -149,6 +185,9 @@ export class CircularSlider {
     this._svg?.appendChild(this._arc);
   }
 
+  /**
+   * Renders the draggable handle element.
+   */
   private _renderHandle(): void {
     const { width, fillColor, strokeColor } = this._handleOptions;
 
@@ -161,6 +200,11 @@ export class CircularSlider {
     this._svg?.appendChild(this._handle);
   }
 
+  /**
+   * Retrieves the SVG path for the current arc.
+   *
+   * @returns {string} The SVG path.
+   */
   private _getArcPath(): string {
     return describeArc(
       this._coordinates,
@@ -170,12 +214,18 @@ export class CircularSlider {
     );
   }
 
+  /**
+   * Binds UI interaction event listeners.
+   */
   private _bindUIInteractions(): void {
     this._handle?.addEventListener('mousedown', () => this._startDragging());
     this._handle?.addEventListener('touchstart', () => this._startDragging());
     this._svg?.addEventListener('click', (e) => this._onClick(e));
   }
 
+  /**
+   * Binds document interaction event listeners.
+   */
   private _bindDocumentInteractions(): void {
     document.addEventListener('mousemove', (e) => this._onMove(e));
     document.addEventListener('touchmove', (e) => this._onMove(e));
@@ -183,20 +233,36 @@ export class CircularSlider {
     document.addEventListener('touchend', () => this._endDragging());
   }
 
+  /**
+   * Starts the dragging interaction.
+   */
   private _startDragging(): void {
     this._dragging = true;
   }
 
+  /**
+   * Ends the dragging interaction.
+   */
   private _endDragging(): void {
     this._dragging = false;
   }
 
+  /**
+   * Handles the click event on the slider.
+   *
+   * @param {MouseEvent | TouchEvent} event The click event.
+   */
   private _onClick(event: MouseEvent | TouchEvent): void {
     this._recalculateAngle(event);
     this._recalculateValue();
     this._update();
   }
 
+  /**
+   * Handles the move event during dragging.
+   *
+   * @param {MouseEvent | TouchEvent} event The move event.
+   */
   private _onMove(event: MouseEvent | TouchEvent): void {
     if (!this._dragging) return;
     this._recalculateAngle(event);
@@ -204,6 +270,9 @@ export class CircularSlider {
     this._update();
   }
 
+  /**
+   * Updates the circular slider's appearance and value.
+   */
   private _update(): void {
     const { x, y } = this._angleToCoordinates(this._angle);
 
@@ -218,6 +287,11 @@ export class CircularSlider {
     this._callback?.({ id: this.getId(), value: this._value });
   }
 
+  /**
+   * Recalculates the angle based on mouse or touch event.
+   *
+   * @param {MouseEvent | TouchEvent} event The event triggering the recalculation.
+   */
   private _recalculateAngle(event: MouseEvent | TouchEvent): void {
     const { x: centerX, y: centerY } = this._coordinates;
     const { x: startX, y: startY } = getClientCoordinates(event);
@@ -228,6 +302,9 @@ export class CircularSlider {
     this._angle = angle < this._startAngle ? angle + TAU : angle;
   }
 
+  /**
+   * Recalculates the value based on the current angle.
+   */
   private _recalculateValue(): void {
     const angleDifference = this._angle - this._startAngle;
     const anglePerStep = TAU / ((this._max - this._min) / this._step);
@@ -237,6 +314,13 @@ export class CircularSlider {
     this._value = Math.max(this._min, Math.min(this._max, newValue));
   }
 
+  /**
+   * Converts a value to an angle for rendering.
+   *
+   * @param {number} value The value to convert.
+   *
+   * @returns {number} The angle in radians.
+   */
   private _getAngleForValue(value: number): number {
     const valueRange = this._max - this._min;
     const valueFraction = (value - this._min) / valueRange;
@@ -244,6 +328,13 @@ export class CircularSlider {
     return this._startAngle + TAU * valueFraction;
   }
 
+  /**
+   * Converts an angle to coordinates for rendering.
+   *
+   * @param {number} angle - The angle in radians.
+   *
+   * @returns {Coordinates} The corresponding coordinates.
+   */
   private _angleToCoordinates(angle: number): Coordinates {
     const { x, y } = this._coordinates;
 
