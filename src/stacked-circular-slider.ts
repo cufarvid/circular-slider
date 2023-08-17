@@ -66,7 +66,7 @@ export class StackedCircularSlider {
     instructions.classList.add('instructions');
     instructions.textContent = 'Adjust dial to enter expenses';
 
-    this._container.appendChild(instructions);
+    this._container.querySelector('.container')?.appendChild(instructions);
   }
 
   /**
